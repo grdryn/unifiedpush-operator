@@ -24,3 +24,16 @@ roleRef:
   kind: ClusterRole
   name: enmasse.io:tenant-edit
   apiGroup: rbac.authorization.k8s.io
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: unifiedpush-operator-ups
+subjects:
+- kind: ServiceAccount
+  name: unifiedpush-operator
+  namespace: unifiedpush
+roleRef:
+  kind: Role
+  name: unifiedpush-operator-ups
+  apiGroup: rbac.authorization.k8s.io

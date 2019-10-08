@@ -22,6 +22,12 @@ code/run: export APP_NAMESPACES    = $(NAMESPACE),$(APP_NAMESPACE)
 code/run: code/gen
 	operator-sdk up local
 
+.PHONY: code/debug
+code/debug: export SERVICE_NAMESPACE = $(NAMESPACE)
+code/debug: export APP_NAMESPACES    = $(NAMESPACE),$(APP_NAMESPACE)
+code/debug:
+	operator-sdk up local --enable-delve
+
 .PHONY: code/gen
 code/gen: code/fix
 	operator-sdk generate k8s
@@ -119,7 +125,7 @@ cluster/prepare:
 	- kubectl label namespace $(NAMESPACE) monitoring-key=middleware
 	- kubectl create namespace $(APP_NAMESPACE)
 	- kubectl create -n $(NAMESPACE) -f deploy/service_account.yaml
-	- kubectl create -f deploy/role.yaml
+	- kubectl create -n $(NAMESPACE) -f deploy/role.yaml
 	- kubectl create -n $(NAMESPACE) -f deploy/role_binding.yaml
 	- kubectl apply -f deploy/crds/push_v1alpha1_pushapplication_crd.yaml
 	- kubectl apply -f deploy/crds/push_v1alpha1_androidvariant_crd.yaml
@@ -148,7 +154,7 @@ cluster/clean:
 
 .PHONY: image/build
 image/build:
-	operator-sdk build quay.io/${ORG_NAME}/${APP_NAME}:${DEV_TAG}
+	operator-sdk build quay.io/${ORG_NAME}/${APP_NAME}:${DEV_TAG} --image-build-args "--label quay.expires-after=2w"
 
 .PHONY: image/push
 image/push: image/build
